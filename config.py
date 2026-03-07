@@ -17,7 +17,7 @@ class Config:
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'not-needed')
     EMBEDDING_MODEL = "simple-hash"
     LLM_MODEL = "template"
-    TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))
+    TEMPERATURE = float(os.getenv('TEMPERATURE', '0.1'))
     MAX_TOKENS = int(os.getenv('MAX_TOKENS', '300'))
     
     SIMILARITY_THRESHOLD = float(os.getenv('SIMILARITY_THRESHOLD', '0.1'))
