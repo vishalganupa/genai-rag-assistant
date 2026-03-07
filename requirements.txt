@@ -1,6 +1,10 @@
+
 flask==3.0.0
 flask-cors==4.0.0
 gunicorn==21.2.0
 numpy==1.24.3
 python-dotenv==1.0.0
 google-generativeai
+scikit-learn
+torch 
+transformers
