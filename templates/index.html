@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI RAG Assistant - Production Grade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="description" content="Production-grade GenAI Assistant with RAG">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 GenAI RAG Assistant</h1>
+            <p class="subtitle">Production-Grade Retrieval-Augmented Generation System</p>
+        </header>
+
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <div class="message assistant-message">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <strong>Assistant</strong>
+                            <span class="timestamp"></span>
+                        </div>
+                        <div class="message-text">Hello! I'm your AI assistant powered by RAG (Retrieval-Augmented Generation). I can help you with information about our services, account management, payments, subscriptions, security, support, and more.
+
+My responses are based on our documentation, and I'll show you which sources I used to answer your questions. How can I help you today?</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea 
+                    id="user-input" 
+                    rows="1"
+                    placeholder="Type your message here..." 
+                    autocomplete="off"
+                ></textarea>
+                <button id="send-button" class="button send-button">
+                    <span>Send</span>
+                </button>
+                <button id="new-chat-button" class="button new-chat-button" title="Start new chat">
+                    🆕
+                </button>
+                <button id="clear-button" class="button clear-button" title="Clear conversation">
+                    🗑️
+                </button>
+            </div>
+
+            <div class="suggestions">
+                <p>💡 Try asking about:</p>
+                <button class="suggestion-btn">How do I reset my password?</button>
+                <button class="suggestion-btn">What payment methods do you accept?</button>
+                <button class="suggestion-btn">Tell me about your subscription plans</button>
+                <button class="suggestion-btn">How is my data protected?</button>
+                <button class="suggestion-btn">How can I contact support?</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>⚡ Powered by OpenAI GPT-3.5 & RAG | 📚 Sources shown for transparency | 🔒 Secure & Private</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

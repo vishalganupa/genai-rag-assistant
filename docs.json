@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "title": "Password Reset Process",
+    "content": "To reset your password, follow these steps: 1) Navigate to the login page and click 'Forgot Password'. 2) Enter your registered email address. 3) Check your email inbox for a password reset link (it may take up to 5 minutes to arrive). 4) Click the link in the email - it will be valid for 24 hours. 5) Enter your new password (minimum 8 characters, must include uppercase, lowercase, number, and special character). 6) Confirm the new password by entering it again. 7) Click 'Reset Password' to complete the process. If you don't receive the email, check your spam folder or contact support at support@example.com."
+  },
+  {
+    "id": 2,
+    "title": "Account Creation and Registration",
+    "content": "Creating a new account is simple and free. Start by clicking the 'Sign Up' button on our homepage. You'll need to provide: your full name, a valid email address, and create a strong password. After submitting the form, we'll send a verification email to the address you provided. Click the verification link within 48 hours to activate your account. Once verified, you can log in and complete your profile by adding optional information like phone number, profile picture, and preferences. New users get a 14-day free trial of our premium features. Your account will automatically convert to the free tier after the trial unless you choose to upgrade."
+  },
+  {
+    "id": 3,
+    "title": "Payment Methods and Billing",
+    "content": "We accept multiple payment methods for your convenience. Credit and debit cards: We accept Visa, MasterCard, American Express, and Discover. All card transactions are processed securely through Stripe with PCI-DSS compliance. Digital wallets: We support PayPal, Apple Pay, and Google Pay for faster checkout. Bank transfers: Available for annual subscriptions over $500 (contact our billing team for details). Cryptocurrency: We accept Bitcoin and Ethereum for annual plans. To manage payment methods, go to Settings > Billing > Payment Methods. You can add multiple payment methods and set a default. All transactions are encrypted using 256-bit SSL encryption. We never store your full card details on our servers."
+  },
+  {
+    "id": 4,
+    "title": "Subscription Plans and Pricing",
+    "content": "We offer flexible subscription plans to meet different needs. FREE PLAN ($0/month): Includes basic features, up to 5 projects, 1 GB storage, community support, and standard analytics. PROFESSIONAL PLAN ($29.99/month or $299/year - save 17%): Everything in Free plus unlimited projects, 100 GB storage, priority email support, advanced analytics, API access with 10,000 requests/month, custom branding, and collaboration tools for up to 5 team members. ENTERPRISE PLAN (custom pricing): Everything in Professional plus unlimited storage, 24/7 phone support, dedicated account manager, custom integrations, SSO/SAML authentication, 99.9% SLA guarantee, unlimited API requests, and advanced security features. Students get 50% off any paid plan with a valid .edu email. Annual subscriptions include 2 months free compared to monthly billing."
+  },
+  {
+    "id": 5,
+    "title": "Data Privacy and Security",
+    "content": "Your data security and privacy are our top priorities. ENCRYPTION: All data is encrypted at rest using AES-256 encryption and in transit using TLS 1.3. Our encryption keys are managed through AWS KMS with automatic rotation. COMPLIANCE: We are fully compliant with GDPR (General Data Protection Regulation), CCPA (California Consumer Privacy Act), SOC 2 Type II, and HIPAA (for healthcare customers). DATA STORAGE: Your data is stored in secure data centers with redundancy across multiple geographic regions. We use AWS infrastructure with automatic backups every 6 hours. DATA ACCESS: Only you and authorized team members can access your data. Our employees cannot view your data unless you grant explicit permission for support purposes. DATA DELETION: You can request complete data deletion at any time from Settings > Privacy > Delete Account. We will permanently delete all your data within 30 days. We never sell your data to third parties."
+  },
+  {
+    "id": 6,
+    "title": "Customer Support Services",
+    "content": "We provide comprehensive customer support across multiple channels. EMAIL SUPPORT: Available to all users at support@example.com. Free plan users receive responses within 48 hours, Professional within 12 hours, Enterprise within 2 hours. LIVE CHAT: Available on our website Monday-Friday, 9 AM - 6 PM EST for Professional and Enterprise customers. Free users can access chat during business hours with longer wait times. PHONE SUPPORT: Enterprise customers receive a dedicated phone line with 24/7 availability. Professional customers can schedule phone calls during business hours. KNOWLEDGE BASE: Our comprehensive self-service knowledge base contains over 500 articles, video tutorials, and FAQs, accessible to all users 24/7. COMMUNITY FORUM: Join our community of 50,000+ users to ask questions, share tips, and get peer support. STATUS PAGE: Check real-time system status at status.example.com. We maintain 99.9% uptime and post updates during any incidents."
+  },
+  {
+    "id": 7,
+    "title": "API Access and Documentation",
+    "content": "Our RESTful API provides programmatic access to all platform features. AUTHENTICATION: We use OAuth 2.0 for secure authentication. Generate API keys from Settings > Developer > API Keys. Each key can have specific permissions and rate limits. RATE LIMITS: Free plan users get 100 requests/hour. Professional users get 10,000 requests/hour. Enterprise users get unlimited requests with custom rate limiting. ENDPOINTS: Our API includes endpoints for user management, project operations, data import/export, analytics, webhooks, and real-time notifications. All endpoints support JSON request/response format. DOCUMENTATION: Complete API documentation is available at api.example.com/docs with interactive examples, code samples in Python, JavaScript, Ruby, and PHP, and Postman collections. WEBHOOKS: Set up webhooks to receive real-time notifications for events like new user signups, payment completions, and project updates. SDKs: Official SDKs available for Python, Node.js, and Java. VERSIONING: We maintain API versioning with backward compatibility. Current version is v2, with v1 supported until December 2024."
+  },
+  {
+    "id": 8,
+    "title": "Mobile Applications",
+    "content": "Our mobile apps bring the full platform experience to your smartphone and tablet. iOS APP: Available on the App Store for iPhone and iPad. Requires iOS 14.0 or later. Features include: full project management, offline mode with automatic sync, Face ID and Touch ID authentication, push notifications, document scanning with OCR, and Apple Watch companion app for quick updates. ANDROID APP: Available on Google Play for phones and tablets. Requires Android 8.0 (Oreo) or later. Features include: full project management, offline mode, fingerprint authentication, customizable widgets, integration with Android share menu, and dark mode support. SYNC: All data automatically syncs between web and mobile apps in real-time using WebSocket connections. Changes made on one device appear on others within seconds. OFFLINE MODE: Access and edit your projects without internet connection. Changes are queued and sync automatically when you're back online. MOBILE-SPECIFIC FEATURES: Voice commands for hands-free operation, camera integration for photos, GPS location tagging, and mobile notifications. DOWNLOAD: Search for 'Example App' in your app store or visit example.com/mobile for direct download links."
+  },
+  {
+    "id": 9,
+    "title": "Team Collaboration Features",
+    "content": "Collaborate effectively with your team using our built-in collaboration tools. TEAM WORKSPACES: Create separate workspaces for different teams or projects. Each workspace has its own members, permissions, and billing. ROLE-BASED ACCESS: Assign roles to team members: Owner (full access), Admin (manage users and settings), Editor (create and modify content), Viewer (read-only access), and Custom roles with granular permissions. REAL-TIME COLLABORATION: Multiple team members can work on the same project simultaneously with real-time updates. See who's online and what they're working on. COMMENTS AND MENTIONS: Add comments to any item and @mention team members to notify them. Comment threads help organize discussions. ACTIVITY FEED: Track all team activities in a centralized feed. Filter by user, project, or action type. SHARING: Share individual projects or folders with team members or external collaborators via secure links with expiration dates and password protection. AUDIT LOGS: Enterprise customers get detailed audit logs showing who accessed what and when. Logs are retained for 1 year and can be exported."
+  },
+  {
+    "id": 10,
+    "title": "Data Export and Migration",
+    "content": "Easily export your data or migrate from other platforms. EXPORT FORMATS: Export your data in multiple formats: JSON (structured data with full fidelity), CSV (tabular data for spreadsheets), PDF (formatted reports), Excel (XLSX with multiple sheets), and XML (for system integrations). EXPORT OPTIONS: Export individual projects, entire workspaces, or all your data at once. Schedule automatic exports to run daily, weekly, or monthly. Exports are available for 7 days after generation. IMPORT DATA: Import data from competitors like Asana, Trello, Monday.com, and Jira. We provide step-by-step migration guides and free migration assistance for Enterprise customers. BULK OPERATIONS: Use our CSV import for bulk creation of projects, tasks, or users. Template files are available in Settings > Import/Export. API ACCESS: Use our API for programmatic data export and custom integrations. Perfect for backing up data to your own systems. DATA PORTABILITY: We comply with GDPR data portability requirements. Request a complete data package including all personal data in machine-readable format. RETENTION: Free accounts retain data for 1 year after account closure. Paid accounts retain data for 3 years. Request permanent deletion anytime."
+  }
+]
