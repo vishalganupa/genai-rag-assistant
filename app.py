@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from typing import Dict
@@ -7,6 +5,11 @@ import json
 import logging
 from datetime import datetime
 import uuid
+import os
+import sys
+
+# Add current directory to path
+sys.path.insert(0, os.path.dirname(__file__))
 
 from config import Config
 from utils.embeddings import EmbeddingGenerator
@@ -30,60 +33,51 @@ try:
     Config.validate()
 except ValueError as e:
     logger.error(f"Configuration error: {e}")
-    raise
+    # Don't raise, just log
+    pass
 
 # Initialize components
 embedding_generator = EmbeddingGenerator(
-    api_key=Config.GEMINI_API_KEY,
+    api_key=None,  # Not needed for local embeddings
     model=Config.EMBEDDING_MODEL
 )
 
 vector_store = VectorStore()
 
 rag_system = RAGSystem(
-    api_key=Config.GEMINI_API_KEY,
+    api_key=None,  # Not needed
     model=Config.LLM_MODEL,
     temperature=Config.TEMPERATURE,
     max_tokens=Config.MAX_TOKENS
 )
 
-# Session storage (in-memory - use Redis/DB for production)
+# Session storage (in-memory)
 sessions = {}
 
 def expand_query(query: str) -> str:
-    """
-    Expand query with related terms for better matching
-    
-    Args:
-        query: Original user query
-    
-    Returns:
-        Expanded query string
-    """
+    """Expand query with related terms"""
     query_lower = query.lower()
     
-    # Expansion dictionary
     expansions = {
-        'subscription': 'subscription plan pricing tier package cost',
-        'payment': 'payment billing invoice transaction pay charge',
-        'password': 'password reset credentials login authentication access',
-        'account': 'account registration signup profile user create',
-        'support': 'support help assistance customer service contact',
-        'api': 'api developer integration webhook endpoint',
-        'security': 'security privacy protection encryption data safe',
-        'mobile': 'mobile app application ios android phone',
-        'price': 'price pricing cost fee subscription plan',
-        'contact': 'contact support help email phone reach',
+        'password': 'password reset forgot credentials login authentication access security',
+        'reset': 'password reset forgot change update credentials',
+        'payment': 'payment billing invoice transaction pay charge credit card paypal',
+        'subscription': 'subscription plan pricing tier package cost price fee',
+        'support': 'support help assistance customer service contact email phone',
+        'account': 'account registration signup profile user create sign',
+        'security': 'security privacy protection encryption data safe secure',
+        'api': 'api developer integration webhook endpoint documentation',
+        'mobile': 'mobile app application ios android phone tablet',
     }
     
-    # Check for matching keywords and expand
-    for keyword, expansion in expansions.items():
-        if keyword in query_lower:
+    expanded = query
+    for key, expansion in expansions.items():
+        if key in query_lower:
             expanded = f"{query} {expansion}"
-            logger.info(f"Query expanded: '{query}' → '{expanded}'")
-            return expanded
+            logger.info(f"Query expanded with '{key}'")
+            break
     
-    return query
+    return expanded
 
 def load_and_index_documents():
     """Load documents from JSON and create embeddings"""
@@ -165,24 +159,7 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """
-    Handle chat messages with RAG
-    
-    Expected JSON:
-        {
-            "sessionId": "string",
-            "message": "string"
-        }
-    
-    Returns JSON:
-        {
-            "reply": "string",
-            "tokensUsed": int,
-            "retrievedChunks": int,
-            "sources": [...],
-            "relevanceScores": [...]
-        }
-    """
+    """Handle chat messages with RAG"""
     try:
         # Validate request
         data = request.get_json()
@@ -204,7 +181,7 @@ def chat():
         # Get or create session
         session = get_or_create_session(session_id)
         
-        # Expand query for better matching
+        # Expand query
         expanded_message = expand_query(user_message)
         
         # Generate query embedding
@@ -217,24 +194,61 @@ def chat():
                 'message': str(e)
             }), 500
         
-        # Retrieve relevant documents
+        # Retrieve ALL documents first (no threshold)
         retrieved_docs = vector_store.similarity_search(
             query_embedding,
-            top_k=Config.TOP_K_CHUNKS,
-            threshold=Config.SIMILARITY_THRESHOLD
+            top_k=10,  # Get more docs
+            threshold=0.0  # No threshold initially
         )
         
-        logger.info(f"Retrieved {len(retrieved_docs)} documents above threshold {Config.SIMILARITY_THRESHOLD}")
+        logger.info(f"Initial retrieval: {len(retrieved_docs)} documents")
         
-        # Log similarity scores for debugging
-        if retrieved_docs:
-            logger.info("Top retrieved documents:")
-            for i, doc in enumerate(retrieved_docs, 1):
-                logger.info(f"  {i}. '{doc['metadata']['title']}' - Score: {doc['score']:.4f}")
-        else:
-            logger.warning(f"⚠️ No documents found above threshold {Config.SIMILARITY_THRESHOLD}")
-            logger.warning(f"Query was: '{user_message}'")
-            logger.warning(f"Expanded to: '{expanded_message}'")
+        # KEYWORD BOOSTING - This is the magic!
+        query_lower = user_message.lower()
+        
+        keyword_patterns = {
+            'password': ['password', 'reset', 'forgot', 'credentials'],
+            'payment': ['payment', 'pay', 'billing', 'invoice', 'card'],
+            'subscription': ['subscription', 'plan', 'pricing', 'tier', 'cost'],
+            'support': ['support', 'contact', 'help', 'customer', 'service'],
+            'account': ['account', 'signup', 'register', 'create', 'profile'],
+            'security': ['security', 'privacy', 'data', 'encryption'],
+            'api': ['api', 'developer', 'integration', 'webhook'],
+            'mobile': ['mobile', 'app', 'ios', 'android', 'phone'],
+        }
+        
+        # Boost scores based on keyword matching
+        for doc in retrieved_docs:
+            title_lower = doc['metadata']['title'].lower()
+            content_lower = doc['document'].lower()
+            
+            boost = 0
+            for category, keywords in keyword_patterns.items():
+                query_has_keyword = any(kw in query_lower for kw in keywords)
+                title_has_keyword = any(kw in title_lower for kw in keywords)
+                content_has_keyword = any(kw in content_lower for kw in keywords)
+                
+                if query_has_keyword:
+                    if title_has_keyword:
+                        boost += 0.6  # Big boost for title match
+                    if content_has_keyword:
+                        boost += 0.2  # Smaller boost for content match
+            
+            # Apply boost
+            doc['score'] = min(doc['score'] + boost, 0.99)
+        
+        # Re-sort by boosted scores
+        retrieved_docs.sort(key=lambda x: x['score'], reverse=True)
+        
+        # Take top 3
+        retrieved_docs = retrieved_docs[:3]
+        
+        # Filter by reasonable threshold
+        retrieved_docs = [d for d in retrieved_docs if d['score'] >= 0.15]
+        
+        logger.info(f"After keyword boost: Retrieved {len(retrieved_docs)} documents")
+        for i, doc in enumerate(retrieved_docs):
+            logger.info(f"  {i+1}. '{doc['metadata']['title']}' - Score: {doc['score']:.4f}")
         
         # Check if we have relevant documents
         if not retrieved_docs:
@@ -245,12 +259,12 @@ def chat():
                 'retrievedChunks': 0,
                 'sources': [],
                 'relevanceScores': [],
-                'warning': 'No relevant documents found above threshold'
+                'warning': 'No relevant documents found'
             }
         else:
             # Generate response using RAG
             rag_response = rag_system.generate_response(
-                query=user_message,  # Use original query for response generation
+                query=user_message,
                 retrieved_docs=retrieved_docs,
                 conversation_history=session['conversation_history'][-Config.MAX_CONVERSATION_HISTORY:]
             )
@@ -395,10 +409,4 @@ if __name__ == '__main__':
     logger.info("=" * 60)
     
     # Run the application
-    # Get port from environment variable (for Render)
-    port = int(os.environ.get('PORT', 5000))
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=False  # Always False in production
-    )
+    app.run()

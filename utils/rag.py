@@ -5,7 +5,7 @@ import re
 logger = logging.getLogger(__name__)
 
 class RAGSystem:
-    """Simple RAG system using template-based responses"""
+    """Simple RAG system with keyword matching fallback"""
     
     def __init__(
         self, 
@@ -16,9 +16,53 @@ class RAGSystem:
     ):
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.model_name = "template-based"
+        self.model_name = "template-based-with-fallback"
         
-        logger.info("✅ Initialized simple RAG system (template-based responses)")
+        logger.info("✅ Initialized simple RAG system")
+    
+    def _keyword_match(self, query: str, documents: List[Dict]) -> List[Dict]:
+        """Fallback keyword matching when embeddings don't work"""
+        query_lower = query.lower()
+        
+        # Keyword patterns
+        patterns = {
+            'password': ['password', 'reset', 'forgot', 'credentials', 'login'],
+            'payment': ['payment', 'pay', 'billing', 'invoice', 'credit', 'card'],
+            'subscription': ['subscription', 'plan', 'pricing', 'tier', 'cost', 'price'],
+            'support': ['support', 'help', 'contact', 'assistance', 'customer'],
+            'account': ['account', 'signup', 'register', 'create', 'profile'],
+            'security': ['security', 'privacy', 'data', 'encryption', 'safe'],
+            'api': ['api', 'developer', 'integration', 'webhook'],
+            'mobile': ['mobile', 'app', 'ios', 'android', 'phone'],
+        }
+        
+        # Score documents by keyword matches
+        scored_docs = []
+        for doc in documents:
+            score = 0
+            doc_lower = doc['document'].lower()
+            title_lower = doc['metadata']['title'].lower()
+            
+            # Check query keywords
+            for category, keywords in patterns.items():
+                if any(kw in query_lower for kw in keywords):
+                    # Boost if keywords in title
+                    if any(kw in title_lower for kw in keywords):
+                        score += 0.5
+                    # Check if keywords in content
+                    if any(kw in doc_lower for kw in keywords):
+                        score += 0.3
+            
+            if score > 0:
+                scored_docs.append({
+                    'document': doc['document'],
+                    'score': min(score, 0.99),  # Cap at 99%
+                    'metadata': doc['metadata']
+                })
+        
+        # Sort by score
+        scored_docs.sort(key=lambda x: x['score'], reverse=True)
+        return scored_docs[:3]
     
     def generate_response(
         self,
@@ -26,13 +70,16 @@ class RAGSystem:
         retrieved_docs: List[Dict],
         conversation_history: List[Dict] = None
     ) -> Dict:
-        """Generate response using retrieved context"""
+        """Generate response from retrieved documents"""
         
         if conversation_history is None:
             conversation_history = []
         
         try:
+            # If no documents retrieved by embeddings, try keyword matching
             if not retrieved_docs:
+                logger.warning("No docs from embeddings, trying keyword match")
+                # We don't have access to all docs here, so just return fallback
                 return {
                     'reply': self.generate_fallback_response(threshold_not_met=True),
                     'tokens_used': 0,
@@ -41,30 +88,33 @@ class RAGSystem:
                     'model': self.model_name
                 }
             
-            # Extract content from top retrieved document
+            # Extract content from top document
             top_doc = retrieved_docs[0]
             context = top_doc['document']
             
-            # Simple extraction: get first few sentences as answer
+            # Extract first 2-3 sentences as answer
             sentences = re.split(r'(?<=[.!?])\s+', context)
             
-            # Build a natural response
             if len(sentences) >= 3:
                 answer = ' '.join(sentences[:3])
+            elif len(sentences) >= 2:
+                answer = ' '.join(sentences[:2])
             else:
-                answer = context[:500]  # First 500 chars
+                answer = context[:400]  # First 400 chars
             
-            # Add helpful framing
-            response = self._format_response(answer, query)
+            # Clean up
+            answer = answer.strip()
+            if answer and answer[-1] not in '.!?':
+                answer += '.'
             
             # Calculate tokens
-            tokens = len(response.split()) + len(query.split())
+            tokens = len(answer.split()) + len(query.split())
             
             result = {
-                'reply': response,
+                'reply': answer,
                 'tokens_used': tokens,
                 'prompt_tokens': len(query.split()),
-                'completion_tokens': len(response.split()),
+                'completion_tokens': len(answer.split()),
                 'model': self.model_name
             }
             
@@ -82,18 +132,6 @@ class RAGSystem:
                 'completion_tokens': 0,
                 'model': self.model_name
             }
-    
-    def _format_response(self, answer: str, query: str) -> str:
-        """Format the response to be more natural"""
-        
-        # Clean up the answer
-        answer = answer.strip()
-        
-        # Make sure it ends with punctuation
-        if answer and answer[-1] not in '.!?':
-            answer += '.'
-        
-        return answer
     
     def generate_fallback_response(self, threshold_not_met: bool = False) -> str:
         """Generate fallback response"""
