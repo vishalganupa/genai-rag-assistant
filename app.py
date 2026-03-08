@@ -379,11 +379,10 @@ def internal_error(error):
 
 if __name__ == '__main__':
     # Load and index documents on startup
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("Starting GenAI RAG Assistant")
-    logger.info("Using local embeddings (SentenceTransformers)")
-    logger.info("Using Google Gemini Pro for responses")
-    logger.info("="*60)
+    logger.info("Using local embeddings")
+    logger.info("=" * 60)
     
     success = load_and_index_documents()
     
@@ -391,14 +390,15 @@ if __name__ == '__main__':
         logger.error("Failed to load documents. Exiting.")
         exit(1)
     
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("Document indexing complete. Starting Flask server...")
-    logger.info(f"Similarity threshold: {Config.SIMILARITY_THRESHOLD}")
-    logger.info(f"Embedding model: {Config.EMBEDDING_MODEL}")
-    logger.info(f"LLM model: {Config.LLM_MODEL}")
-    logger.info("="*60)
+    logger.info("=" * 60)
     
     # Run the application
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-    
+    # Get port from environment variable (for Render)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=False  # Always False in production
+    )
